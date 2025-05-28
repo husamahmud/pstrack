@@ -1,10 +1,8 @@
-import type { User } from '@supabase/supabase-js'
-import { LucideLogIn } from 'lucide-react'
-
 import { UserMenu } from '@/app/(auth)/_components/user-menu'
 import { StaticLink } from '@/ui/hover-link'
+import { AuthLeetcoder } from '@/server/routers/auth'
 
-export const UserAuth = async ({ user }: { user: User | null }) => {
+export const UserAuth = async ({ user }: { user: AuthLeetcoder | null }) => {
   return (
     <div className="flex items-center">
       {user ? (
@@ -14,8 +12,7 @@ export const UserAuth = async ({ user }: { user: User | null }) => {
           href="/login"
           className="px-5"
         >
-          <span className="hidden sm:block">Login</span>
-          <LucideLogIn className="block size-5 sm:hidden" />
+          <span>Login</span>
         </StaticLink>
       )}
     </div>

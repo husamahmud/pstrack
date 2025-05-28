@@ -5,6 +5,7 @@ import { debounce } from 'lodash'
 import { toast } from 'sonner'
 import type { CellContext } from '@tanstack/react-table'
 import type { leetcoders } from '@prisma/client'
+import { useRouter } from 'next/navigation'
 
 import { api } from '@/trpc/react'
 import type { TableRowOutput } from '@/types/tableRow.type'
@@ -12,34 +13,30 @@ import { useConfettiStore } from '@/stores/confettiStore'
 import { useSubmissionStore } from '@/stores/submissionStore'
 
 import { Checkbox } from '@/app/group/_components/checkbox'
-import {
-  errorToastStyle,
-  loadingToastStyle,
-  successToastStyle,
-} from '@/app/_components/toast-styles'
+import { errorToastStyle, loadingToastStyle, successToastStyle } from '@/app/_components/toast-styles'
 
 export const SubmitCheckbox = ({
   info,
   leetcoder,
   groupId,
   problemSlug,
-  onSuccessfulSubmit,
 }: {
   info: CellContext<TableRowOutput, unknown>
   leetcoder: leetcoders
   groupId: string
   problemSlug: string
-  onSuccessfulSubmit: () => void
 }) => {
+  const router = useRouter()
+
   // Get the submission from the table data
   const submission = info.getValue()
   const problemId = info.row.original.problem.id
 
   // Create a unique submission key for the store
-  const submissionKey = `${groupId}:${leetcoder.id}:${problemId}`
+  const submissionKey = `${leetcoder.group_no}:${leetcoder.id}:${problemId}`
 
   // Get submission state and setter from the Zustand store
-  const { isSubmitted, setSubmission } = useSubmissionStore()
+  const { isSubmitted, setSubmission, hasPendingSubmission, setPendingSubmission } = useSubmissionStore()
 
   // Check both the API data and the store for submission state
   const [isChecked, setIsChecked] = useState(() => {
@@ -55,6 +52,9 @@ export const SubmitCheckbox = ({
   const handleCheckboxChange = debounce(() => {
     // If already checked, do nothing
     if (isChecked) return
+
+    // Set pending submission state
+    setPendingSubmission(true)
 
     // Optimistically update the UI
     setIsChecked(true)
@@ -89,21 +89,11 @@ export const SubmitCheckbox = ({
           setIsChecked(true)
           setSubmission(submissionKey, true)
 
-          // Invalidate the Redis cache
-          try {
-            await fetch('/api/invalidate-cache/group', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ groupId }),
-            })
-          } catch (error) {
-            console.error('Failed to invalidate cache:', error)
-          }
+          // Clear pending state
+          setPendingSubmission(false)
 
-          // Call the callback to resort leetcoders
-          onSuccessfulSubmit()
+          // Refresh the page to re-sort the table
+          router.refresh()
         },
         onError: async (error) => {
           // Dismiss loading toast and show error
@@ -123,6 +113,9 @@ export const SubmitCheckbox = ({
           // Reset the checked state on error
           setIsChecked(!!submission)
           setSubmission(submissionKey, false)
+
+          // Clear pending state
+          setPendingSubmission(false)
         },
       }
     )
@@ -132,7 +125,7 @@ export const SubmitCheckbox = ({
     <Checkbox
       checked={isChecked}
       onCheckedChange={handleCheckboxChange}
-      disabled={isPending || isChecked || !user || !isCurrUser}
+      disabled={isPending || isChecked || !user || !isCurrUser || hasPendingSubmission}
       className="peer size-4 shrink-0 rounded-sm border border-zinc-200 shadow focus-visible:ring-1 focus-visible:ring-zinc-950 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-400 dark:focus-visible:ring-zinc-300"
     />
   )

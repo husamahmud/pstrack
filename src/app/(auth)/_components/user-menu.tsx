@@ -2,13 +2,11 @@
 
 import { FaUserGroup } from 'react-icons/fa6'
 import { IoExitOutline } from 'react-icons/io5'
-import { FaUserShield } from 'react-icons/fa'
-import type { User } from '@supabase/supabase-js'
+import { FaUser, FaUserShield } from 'react-icons/fa'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { signOut } from '@/supabase/auth.service'
-import { api } from '@/trpc/react'
 import { AUTHOR_EMAIL } from '@/data/constants'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/ui/avatar'
@@ -22,36 +20,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/ui/dropdown-menu'
+import { AuthLeetcoder } from '@/server/routers/auth'
 
-const MenuItem = ({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: React.ReactNode
-  label: string
-  onClick: () => Promise<void>
-}) => (
+const MenuItem = ({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => Promise<void> }) => (
   <DropdownMenuItem onClick={onClick}>
     {icon}
     <span className="ml-2">{label}</span>
   </DropdownMenuItem>
 )
 
-const renderAvatar = (user: User) => (
-  <Avatar>
-    <AvatarImage
-      src={user?.user_metadata?.avatar_url || ''}
-      alt={user?.user_metadata?.full_name || ''}
-    />
-    <AvatarFallback>{user?.user_metadata?.full_name?.substring(0, 2)}</AvatarFallback>
-  </Avatar>
-)
-
-export const UserMenu = ({ user }: { user: User }) => {
+export const UserMenu = ({ user }: { user: AuthLeetcoder }) => {
   const router = useRouter()
-  const { data: leetcoder } = api.leetcoders.getLeetcoderById.useQuery({ id: user.id })
-  const isAdmin = leetcoder?.email === AUTHOR_EMAIL
+
+  const isAdmin = user.email === AUTHOR_EMAIL
+  const isMember = user.leetcoder?.status === 'APPROVED' || user.leetcoder?.status === 'PENDING'
 
   const handleLogout = async () => {
     const { error } = await signOut()
@@ -66,9 +48,13 @@ export const UserMenu = ({ user }: { user: User }) => {
     router.push('/dashboard')
   }
 
+  const navigateToProfile = async () => {
+    router.push('/profile')
+  }
+
   const navigateToGroup = async () => {
-    if (leetcoder?.group_no) {
-      router.push(`/group/${leetcoder.group_no}`)
+    if (user.leetcoder?.group_no) {
+      router.push(`/group/${user.leetcoder.group_no}`)
     }
   }
 
@@ -79,14 +65,47 @@ export const UserMenu = ({ user }: { user: User }) => {
           variant="ghost"
           className="h-auto cursor-pointer rounded-full p-0 hover:bg-transparent"
         >
-          {renderAvatar(user)}
+          <Avatar>
+            <AvatarImage
+              src={user?.leetcoder?.avatar || ''}
+              alt={user?.leetcoder?.name || ''}
+            />
+            <AvatarFallback>{user?.user_metadata?.full_name?.substring(0, 2)}</AvatarFallback>
+          </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="max-w-64">
         <DropdownMenuLabel className="flex min-w-0 flex-col">
           <span className="text-muted-foreground truncate text-xs font-normal">{user?.email}</span>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+
+        {isMember && (
+          <>
+            <DropdownMenuSeparator />
+
+            <MenuItem
+              icon={
+                <FaUserGroup
+                  size={16}
+                  className="opacity-60"
+                />
+              }
+              label="My Group"
+              onClick={navigateToGroup}
+            />
+
+            <MenuItem
+              icon={
+                <FaUser
+                  size={16}
+                  className="opacity-60"
+                />
+              }
+              label="Profile"
+              onClick={navigateToProfile}
+            />
+          </>
+        )}
 
         {isAdmin && (
           <MenuItem
@@ -100,17 +119,6 @@ export const UserMenu = ({ user }: { user: User }) => {
             onClick={navigateToDashboard}
           />
         )}
-
-        <MenuItem
-          icon={
-            <FaUserGroup
-              size={16}
-              className="opacity-60"
-            />
-          }
-          label="My Group"
-          onClick={navigateToGroup}
-        />
 
         <DropdownMenuGroup />
         <DropdownMenuSeparator />

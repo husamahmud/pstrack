@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/utils/cn'
 import { TABS } from '@/data/constant-components'
 
-export const NavMenu = () => {
+export const NavMenu = ({ className }: { className?: string }) => {
   const [activeTab, setActiveTab] = useState('Home')
   const tabRefs = useRef<{ [key: string]: HTMLAnchorElement | null }>({})
   const pathname = usePathname()
@@ -19,15 +19,14 @@ export const NavMenu = () => {
 
   // Set active tab based on current URL
   useEffect(() => {
-    const currentTab = TABS.find(
-      (tab) => pathname === tab.url || pathname.startsWith(`${tab.url}/`)
-    )
+    const currentTab = TABS.find((tab) => pathname === tab.url || pathname.startsWith(`${tab.url}/`))
 
     if (currentTab) setActiveTab(currentTab.name)
+    else setActiveTab('') // Clear active tab if not matching any tab in TABS
   }, [pathname])
 
   return (
-    <div className="z-[100]">
+    <div className={cn('z-[100]', className)}>
       <div className="flex items-center gap-2 rounded-full border border-gray-500/20 bg-white/5 px-1 py-1 shadow-lg shadow-black backdrop-blur-lg">
         {TABS.map((tab) => (
           <Link

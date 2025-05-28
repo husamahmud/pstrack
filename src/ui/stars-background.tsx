@@ -12,13 +12,7 @@ interface StarLayerProps {
   className?: string
 }
 
-const StarLayer = ({
-  count = 1000,
-  size = 1,
-  duration = 50,
-  starColor = '#fff',
-  className,
-}: StarLayerProps) => {
+const StarLayer = ({ count = 500, size = 1, duration = 50, starColor = '#fff', className }: StarLayerProps) => {
   const [boxShadow, setBoxShadow] = useState('')
 
   useEffect(() => {
@@ -33,7 +27,7 @@ const StarLayer = ({
 
   return (
     <motion.div
-      animate={{ y: [0, -2000] }}
+      animate={{ y: [0, -1500] }}
       transition={{ repeat: Number.MAX_VALUE, duration, ease: 'linear' }}
       className={cn('absolute top-0 left-0 h-[2000px] w-full', className)}
     >
@@ -64,12 +58,7 @@ interface StarsBackgroundProps {
   speed?: number
 }
 
-export function StarsBackground({
-  children,
-  className,
-  factor = 0.05,
-  speed = 50,
-}: StarsBackgroundProps) {
+export function StarsBackground({ children, className, factor = 0.05, speed = 50 }: StarsBackgroundProps) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   const handleMouseMove = useCallback(
@@ -93,7 +82,7 @@ export function StarsBackground({
   return (
     <div
       className={cn(
-        'relative size-full overflow-hidden bg-[radial-gradient(ellipse_at_bottom,_#1a1a1a_0%,_#000_100%)]',
+        'relative size-full overflow-hidden bg-[radial-gradient(ellipse_at_bottom,_#1a1a1a_30%,_#000_100%)]',
         className
       )}
     >

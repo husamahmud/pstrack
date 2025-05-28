@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import { LuFile } from 'react-icons/lu'
+import { BiSolidFolderOpen, BiSolidFolder } from 'react-icons/bi'
 import { PiYoutubeLogo } from 'react-icons/pi'
 import type { ComponentProps, ReactNode } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { FolderIcon, FolderOpenIcon } from 'lucide-react'
 
 import { cn } from '@/utils/cn'
 import {
@@ -30,16 +30,7 @@ type FileButtonProps = ComponentProps<'div'> & {
   href?: string
 }
 
-function FileButton({
-  children,
-  className,
-  icons,
-  icon,
-  open,
-  sideComponent,
-  href,
-  ...props
-}: FileButtonProps) {
+function FileButton({ children, className, icons, icon, open, sideComponent, href, ...props }: FileButtonProps) {
   const content = (
     <span className="flex shrink-1 items-center gap-2 truncate [&_svg]:size-4 [&_svg]:shrink-0">
       {icon
@@ -105,15 +96,7 @@ type FilesProps = ComponentProps<'div'> & {
   onOpenChange?: (open: string[]) => void
 }
 
-function Files({
-  children,
-  className,
-  activeClassName,
-  defaultOpen,
-  open,
-  onOpenChange,
-  ...props
-}: FilesProps) {
+function Files({ children, className, activeClassName, defaultOpen, open, onOpenChange, ...props }: FilesProps) {
   return (
     <div
       data-slot="files"
@@ -157,8 +140,9 @@ function FolderTrigger({ children, className, sideComponent, ...props }: FolderT
       <FileButton
         open={isOpen}
         icons={{
-          open: <FolderOpenIcon fill="currentColor" />,
-          close: <FolderIcon fill="currentColor" />,
+          // (Removed commented-out icon code for clarity and maintainability)
+          open: <BiSolidFolderOpen />,
+          close: <BiSolidFolder />,
         }}
         className={className}
         sideComponent={sideComponent}
@@ -169,10 +153,7 @@ function FolderTrigger({ children, className, sideComponent, ...props }: FolderT
   )
 }
 
-type FolderProps = Omit<
-  AccordionItemProps,
-  'value' | 'onValueChange' | 'defaultValue' | 'children'
-> & {
+type FolderProps = Omit<AccordionItemProps, 'value' | 'onValueChange' | 'defaultValue' | 'children'> & {
   children?: ReactNode
   name: string
   open?: string[]
@@ -181,16 +162,7 @@ type FolderProps = Omit<
   sideComponent?: ReactNode
 }
 
-function Folder({
-  children,
-  className,
-  name,
-  open,
-  defaultOpen,
-  onOpenChange,
-  sideComponent,
-  ...props
-}: FolderProps) {
+function Folder({ children, className, name, open, defaultOpen, onOpenChange, sideComponent, ...props }: FolderProps) {
   return (
     <AccordionItem
       data-slot="folder"
