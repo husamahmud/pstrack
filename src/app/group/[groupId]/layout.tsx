@@ -29,7 +29,7 @@ const Layout = async ({ children, params }: { children: React.ReactNode; params:
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-svh flex-col">
       <GroupHeader groupNo={groupId} />
       {children}
     </div>
