@@ -33,7 +33,7 @@ const Page = () => {
         <HeroVideoDialog
           animationStyle="from-center"
           videoSrc="https://www.youtube.com/embed/qh3NGpYRG3I?si=4rb-zSdDkVK9qxxb"
-          thumbnailSrc="/hero.png"
+          thumbnailSrc="/hero-image.png"
           thumbnailAlt="Hero Video"
         />
       </div>
