@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { LuFile } from 'react-icons/lu'
 import { BiSolidFolderOpen, BiSolidFolder } from 'react-icons/bi'
 import { PiYoutubeLogo } from 'react-icons/pi'
+import { SiUdemy } from 'react-icons/si'
+import { MdVideoLibrary } from 'react-icons/md'
 import type { ComponentProps, ReactNode } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 
@@ -18,6 +20,7 @@ import {
   useAccordionItem,
 } from '@/ui/accordion'
 import { MotionHighlight, MotionHighlightItem } from '@/ui/motion-highlight'
+import Image from 'next/image'
 
 type FileButtonProps = ComponentProps<'div'> & {
   icons?: {
@@ -140,7 +143,6 @@ function FolderTrigger({ children, className, sideComponent, ...props }: FolderT
       <FileButton
         open={isOpen}
         icons={{
-          // (Removed commented-out icon code for clarity and maintainability)
           open: <BiSolidFolderOpen />,
           close: <BiSolidFolder />,
         }}
@@ -174,7 +176,7 @@ function Folder({ children, className, name, open, defaultOpen, onOpenChange, si
         className={className}
         sideComponent={sideComponent}
       >
-        {name}
+        {name.toLowerCase()}
       </FolderTrigger>
       {children && (
         <AccordionContent className="before:bg-border relative !ml-7 pb-0 before:absolute before:inset-y-0 before:-left-3 before:h-full before:w-px">
@@ -196,13 +198,31 @@ type FileProps = Omit<ComponentProps<'div'>, 'children'> & {
   name: string
   sideComponent?: ReactNode
   href?: string
-  type?: 'youtube' | 'article'
+  type?: string
 }
 
 function File({ name, className, sideComponent, href, type, ...props }: FileProps) {
   const getIcon = () => {
-    if (type === 'youtube') return <PiYoutubeLogo />
-    return <LuFile />
+    switch (type?.toLowerCase()) {
+      case 'youtube':
+        return <PiYoutubeLogo className="text-red-500" />
+      case 'video':
+        return <MdVideoLibrary className="text-blue-500" />
+      case 'udemy':
+        return <SiUdemy className="text-purple-500" />
+      case 'frontendmasters':
+        return (
+          <Image
+            src="/fem.png"
+            alt="Frontend Masters"
+            width={18}
+            height={18}
+          />
+        )
+      case 'article':
+      default:
+        return <LuFile className="text-gray-500" />
+    }
   }
 
   return (
